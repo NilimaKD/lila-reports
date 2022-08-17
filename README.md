@@ -8,4 +8,6 @@
 
 1. Go to "Shared with me" on your google drive
 2. Right Click on the shared folder name (in this case "LiLa_Nagapattinam), select "Add shortcut to Drive". Select "My Drive" and click "Add Shortcut".
-3. 
+3. The file will now be visible in the "drive" subfolder of the data pane.
+   
+## Copy Data from GDrive to Kaggle
