@@ -2,7 +2,7 @@
 
 ## Opening on Colab
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/restlessronin/lila-reports/blob/master/notebooks/index.ipynb)
+[![Sample Colab Setup](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/restlessronin/lila-reports/blob/master/000-colab-setup.ipynb)
 
 ## Mount Google Drive on Colab
 
