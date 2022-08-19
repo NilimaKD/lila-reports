@@ -11,3 +11,8 @@
 3. The file will now be visible in the "drive" subfolder of the data pane.
    
 ## Copy Data from GDrive to Kaggle
+
+1. Download root dir from GDrive. The directory will be zipped and downloaded.
+2. Create a Kaggle Dataset by uploading the zip file. Kaggle will automatically unzip the file and re-create the GDrive directory structure.
+3. Share the dataset with all collaborators.
+4. Attach the dataset to every notebook that needs it.
