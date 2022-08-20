@@ -1,0 +1,14 @@
+name: conda-lila-reports
+channels:
+  - conda-forge
+dependencies:
+  - python =3.10 # different from notebook version
+  - pip
+  - conda
+  - mamba
+  - fiona
+  - shapely
+  - rasterio
+  - pyproj
+  - pandas
+  - geopandas
