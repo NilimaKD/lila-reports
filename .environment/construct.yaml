@@ -25,6 +25,7 @@ specs:
   - pyproj
   - pandas
   - geopandas
+  - matplotlib-scalebar
 
 # Pip dependencies are NOT recommended. If you do need them
 # uncomment the line below and edit `pip-dependencies.sh`.
