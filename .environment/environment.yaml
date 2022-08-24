@@ -12,3 +12,4 @@ dependencies:
   - pyproj
   - pandas
   - geopandas
+  - matplotlib-scalebar
