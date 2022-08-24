@@ -1,4 +1,4 @@
-name: conda-lila-reports
+name: lila
 channels:
   - conda-forge
 dependencies:
