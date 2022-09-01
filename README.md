@@ -2,7 +2,7 @@
 
 ## Opening on Colab
 
-* [![Sample Colab Setup](https://colab.research.google.com/assets/colab-badge.svg)](<https://colab.research.google.com/github/restlessronin/lila-reports/blob/master/LILA Visuals.ipynb>) LILA Visuals
+* [![Sample Colab Setup](https://colab.research.google.com/assets/colab-badge.svg)](<https://colab.research.google.com/github/restlessronin/lila-reports/blob/master/LILA visuals.ipynb>) LILA Visuals
 * [![Sample Colab Setup](https://colab.research.google.com/assets/colab-badge.svg)](<https://colab.research.google.com/github/restlessronin/lila-reports/blob/master/Clipping Slope raste.ipynb>) Clipping Slope raste
 
 ## Mount Google Drive on Colab
