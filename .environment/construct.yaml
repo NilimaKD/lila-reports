@@ -4,6 +4,7 @@ version: 0.0.2      # increment if you change the specs, for reproducibility!
 
 channels:
   - conda-forge
+  - fastai
 specs:
   - python =3.7  # Python MUST be version 3.7
   - pip
@@ -19,6 +20,8 @@ specs:
 
   # Add your dependencies below this line
   # -------------------------------------
+  - black
+  - nbdev
   - fiona
   - shapely
   - rasterio
