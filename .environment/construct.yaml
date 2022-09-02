@@ -21,6 +21,7 @@ specs:
   # Add your dependencies below this line
   # -------------------------------------
   - black
+  - jupytext
   - nbdev
   - fiona
   - shapely

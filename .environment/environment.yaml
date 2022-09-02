@@ -9,6 +9,7 @@ dependencies:
   - mamba
   - black
   - notebook
+  - jupytext
   - nbdev
   - fiona
   - shapely
