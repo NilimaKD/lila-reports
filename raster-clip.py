@@ -371,7 +371,7 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 # %%
 slope = read_raster_UT('workdir/slope_dstepsg.tif')
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig1, ax1 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -498,7 +498,7 @@ print(x)
 # %%
 GHI = read_raster_UT('workdir/GHIepsg_Nagapattinam.tif')
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig2, ax2 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -600,7 +600,7 @@ _shp_dst_water["GEOMORPHOL"].unique()
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig3, ax3 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -679,7 +679,7 @@ shp_land_cover_Water1 = shp_land_cover[shp_land_cover["DN"] == 50 ]
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig55, ax55 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -806,7 +806,7 @@ _shp_dst_railways.plot()
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig4, ax4 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -1016,7 +1016,7 @@ shp_land_cover_Water1 = shp_land_cover[shp_land_cover["DN"] == 50 ]
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig6, ax6 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -1110,7 +1110,7 @@ shp_land_cover_Water1 = shp_land_cover[shp_land_cover["DN"] == 50 ]
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig7, ax7 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -1212,7 +1212,7 @@ lc_barren = read_df_UT('solar/all_lands_barren/all_BarrenLands_Mayu.shp')
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig8, ax8 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -1301,7 +1301,7 @@ lc_tech_S1 = lc_tech[lc_tech["area_class"] == "C"]
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig9, ax9 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -1398,7 +1398,7 @@ merge_lc_low = overlay(lc_low,_shp_district,how ="intersection")
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig10, ax10 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
@@ -1544,7 +1544,7 @@ _shp_merge_tech_water_forest = overlay(_shp_merge_tech_water,_shp_merge_tech_for
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("Supporting_info/Mayiladuthurai major towns/Mayiladuthurai major towns.shp")
+_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig11, ax11 = plt.subplots(figsize=(5, 5))
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
