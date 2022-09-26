@@ -192,7 +192,7 @@ out_meta.update({
 })    
 
 # %%
-with rasterio.open('F:/AV Consulting/2022/LiLa/TN Government/Data/LiLa_Nagapattinam/workdir/slope_dst.tif', 'w', **out_meta) as dst:
+with rasterio.open(get_in_workdir('slope_dst.tif'), 'w', **out_meta) as dst:
     dst.write(out_image)
 
 # %%
@@ -203,7 +203,7 @@ rasterio.plot.show(read_raster_UT('workdir/slope_dst.tif'))
 
 # %%
 #Open raster
-_tif_dst_slope = rasterio.open('F:/AV Consulting/2022/LiLa/TN Government/Data/LiLa_Nagapattinam/workdir/slope_dst.tif')
+_tif_dst_slope = rasterio.open(get_in_workdir('slope_dst.tif'))
 
 # %%
 #Show the CRS of source raster
@@ -234,8 +234,7 @@ kwargs.update({
 
 # %%
 #Open destination raster
-_tif_dst_slope_epsg4326 = rasterio.open(
-    'F:/AV Consulting/2022/LiLa/TN Government/Data/LiLa_Nagapattinam/workdir/slope_dstepsg.tif', 'w', **kwargs)
+_tif_dst_slope_epsg4326 = rasterio.open(get_in_workdir('slope_dstepsg.tif'), 'w', **kwargs)
 
 
 # %%
@@ -661,16 +660,11 @@ print(plt.rcParams['font.family'])
 plt.savefig(get_in_workdir("water_rivers_lakes.jpg"),dpi =1500)
 plt.show()
 
-# %%
-#image = rasterio.open('F:/AV Consulting/2022/LiLa/TN Government/Data/LiLa_Nagapattinam/Practice/LC_w_urban_w_waterbod.tif')
-
-#rasterio.plot.show(image)
-
 # %% [markdown]
 # All Water Bodies
 
 # %%
-shp_land_cover = read_df_UT('workdir/LC_mayil_shapefile.shp')
+shp_land_cover = read_df_UT('extrainputs/LC_mayil_shapefile.shp')
 shp_land_cover["DN"].unique()
 
 # %%
@@ -784,7 +778,7 @@ _shp_dst_roads_primary = overlay(_shp_roads_primary,_shp_district,how ="intersec
 
 # %%
 _shp_roads_primary_secondary = gpd.pd.concat([_shp_dst_roads_primary, _shp_dst_roads_secondary])
-_shp_roads_primary_secondary.to_file('F:/AV Consulting/2022/LiLa/TN Government/Data/LiLa_Nagapattinam/workdir/roads_prim_sec.shp')
+_shp_roads_primary_secondary.to_file(get_in_workdir('roads_prim_sec.shp'))
 
 # %% [markdown]
 # ### Railways
@@ -797,7 +791,7 @@ _shp_railways = read_df_UT("Supporting_info/railway/Railways.shp")
 _shp_dst_railways = overlay(_shp_railways,_shp_district,how ="intersection")
 
 # %%
-_shp_dst_railways.to_file('F:/AV Consulting/2022/LiLa/TN Government/Data/LiLa_Nagapattinam/workdir/railsways_dst.shp')
+_shp_dst_railways.to_file(get_in_workdir('railsways_dst.shp'))
 
 # %%
 _shp_dst_roads_secondary.plot()
@@ -1007,7 +1001,7 @@ plt.show()
 # ## Built-up Area
 
 # %%
-shp_land_cover = read_df_UT('workdir/LC_mayil_shapefile.shp')
+shp_land_cover = read_df_UT('extrainputs/LC_mayil_shapefile.shp')
 shp_land_cover["DN"].unique()
 
 # %%
@@ -1101,7 +1095,7 @@ plt.show()
 # ## Landcover as shapefile
 
 # %%
-shp_land_cover = read_df_UT('workdir/LC_mayil_shapefile.shp')
+shp_land_cover = read_df_UT('extrainputs/LC_mayil_shapefile.shp')
 shp_land_cover["DN"].unique()
 
 # %%
@@ -1706,8 +1700,7 @@ lc_builtup_int
 lc_builtup_int.dtype, lc_builtup_int.shape, lc_array1.shape, np.unique(lc_builtup_int)
 
 # %%
-built_up_dataset = rasterio.open(
-    "F:/AV Consulting/2022/LiLa/TN Government/Data/LiLa_Nagapattinam/builtup6.tif", "w", 
+built_up_dataset = rasterio.open(get_rooted("builtup6.tif"), "w", 
     driver = "GTiff",
     height = lc_builtup_int.shape[0],
     width = lc_builtup_int.shape[1],
@@ -1721,14 +1714,14 @@ built_up_dataset.write(lc_builtup_int)
 built_up_dataset.close()
 
 # %%
-image = rasterio.open("F:/AV Consulting/2022/LiLa/TN Government/Data/LiLa_Nagapattinam/builtup6.tif")
+image = rasterio.open(get_rooted("builtup6.tif"))
 image.read()
 
 # %%
-rasterio.plot.show(image.read(), cmap='gray_r', transform=image.transform)
+#rasterio.plot.show(image.read(), cmap='gray_r', transform=image.transform)
 
 # %%
-image.meta
+#image.meta
 
 # %%
 
