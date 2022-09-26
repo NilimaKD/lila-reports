@@ -804,55 +804,47 @@ _shp_dst_railways.plot()
 # This plot layers the primary and secondary roads with the railway lines in the district. Details of the library can be found here : https://geopandas.org/en/stable/docs/user_guide/mapping.html
 
 # %%
-plt.rcParams['font.family'] = 'Helvetica'
-
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
-
 fig4, ax4 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
+def plot_common_features(fig, ax):
+    plt.rcParams['font.family'] = 'Helvetica'
+    plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
 
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
+    shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
+    shp_cities['coords'] = shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
+    shp_cities['coords'] = [coords[0] for coords in shp_cities['coords']]
+    shp_cities["coords"].tolist()
+    shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(shp_cities['coords'].tolist(), index=shp_cities.index)
 
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
+    x = shp_cities["lat"]
+    y = shp_cities["lon"]    
+    labels =shp_cities["name"]
 
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
+    for i in range(0,len(shp_cities)):
+        plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
 
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
+    dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
+    scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
+    ax.add_artist(scalebar)
+    scalebar.font_properties.set_size(5.5)
+    scalebar.font_properties.set_family('Helvetica')
 
-for i in range(0,len(_shp_cities)):
-    plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
-    
+    ax.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
+    ax.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
+    ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
+    ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+    ax.set_xlim(79.40, 80)
+    ax.set_ylim(10.93, 11.45)
 
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax4.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
+    ax.spines['bottom'].set_color('none')
+    ax.spines['top'].set_color('none') 
+    ax.spines['right'].set_color('none')
+    ax.spines['left'].set_color('none')
 
-ax4.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax4.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
+    x, y, arrow_length = 0.5, 0.99, 0.1
+    ax.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax4.transAxes)
 
-ax4.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax4.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax4.set_xlim(79.40, 80)
-ax4.set_ylim(10.93, 11.45)
-
-ax4.spines['bottom'].set_color('none')
-ax4.spines['top'].set_color('none') 
-ax4.spines['right'].set_color('none')
-ax4.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax4.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax4.transAxes)
-
+plot_common_features(fig4, ax4)
 
 _plt_district = _shp_district.plot(ax=ax4, figsize =(5,5),color="none",linewidth = 0.5)
 _shp_dst_roads_secondary.plot(color="#f0b8b3",label ="Secondary roads",ax=ax4, linewidth=0.5)
