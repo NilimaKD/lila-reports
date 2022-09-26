@@ -1,9 +1,8 @@
 # Reporting Module and Notebooks for AVC LiLa
 
-## Opening on Colab
+## JupyText
 
-* [![Sample Colab Setup](https://colab.research.google.com/assets/colab-badge.svg)](<https://colab.research.google.com/github/restlessronin/lila-reports/blob/master/LILA visuals.ipynb>) LILA Visuals
-* [![Sample Colab Setup](https://colab.research.google.com/assets/colab-badge.svg)](<https://colab.research.google.com/github/restlessronin/lila-reports/blob/master/Clipping Slope raste.ipynb>) Clipping Slope raste
+Currently we are using jupytext to persist the notebooks as `.py` files rather than as the JSON `.ipynb` files. This was done to enable usable git interop.
 
 ## Mount Google Drive on Colab
 

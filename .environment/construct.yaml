@@ -1,6 +1,6 @@
 
-name: conda-lila-reports  # you can edit this if you want
-version: 0.0.2      # increment if you change the specs, for reproducibility!
+name: conda-lila  # you can edit this if you want
+version: 0.0.3      # increment if you change the specs, for reproducibility!
 
 channels:
   - conda-forge
@@ -30,6 +30,7 @@ specs:
   - pandas
   - geopandas
   - matplotlib-scalebar
+  - pygc
 
 # Pip dependencies are NOT recommended. If you do need them
 # uncomment the line below and edit `pip-dependencies.sh`.
