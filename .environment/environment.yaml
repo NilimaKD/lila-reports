@@ -18,3 +18,4 @@ dependencies:
   - pandas
   - geopandas
   - matplotlib-scalebar
+  - pygc

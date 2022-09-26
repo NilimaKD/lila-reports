@@ -127,7 +127,6 @@ def read_df_UT(stem):
 _shp_district = read_df_UT("Practice/Nagapattinam_proj32644.shp")
 _shp_district.info()
 
-
 # %% [markdown]
 # ## Powerlines
 
@@ -158,9 +157,11 @@ _shp_dst_substations = overlay(_shp_substations, _shp_district, how='intersectio
 # This plot layers the powerlines and substation locations in the district.
 # Details of the library can be found here : https://geopandas.org/en/stable/docs/user_guide/mapping.html
 
+# %%
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+import matplotlib.font_manager as fm
+
 # %% tags=[]
-from ctypes import sizeof
-from ctypes.wintypes import SIZE
 
 
 _plt_district = _shp_district.plot(figsize=(5,5),color="none")
@@ -190,6 +191,8 @@ plt.text(79.61593,11.20177,s ="Manalmedu",fontsize="x-small")
 plt.text(79.66633,11.10438,s ="Mayiladuthurai",fontsize="x-small")
 plt.text(79.80977,11.17567,s ="Thiruvengadu",fontsize="x-small")
 plt.text(79.72628,11.19915,s ="Vaitheeswarankoil",fontsize="x-small")
+
+
 
 plt.savefig(get_in_workdir("powerlines.jpg"),dpi =1500) 
 plt.show()
@@ -250,23 +253,46 @@ _shp_dst_roads_secondary.plot(color="grey",label ="Secondary roads",ax =_plt_dis
 _shp_dst_roads_primary.plot(color="brown",label ="Primary roads",ax=_plt_district)
 _shp_dst_railways.plot(color="black",label ="Railway roads",ax=_plt_district)
 
-_plt_district.xaxis.tick_top()
+
+
 
 plt.xlim(79.40,80.00)
 plt.ylim(10.93,11.45)
 
 plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-_plt_district.tick_params(axis='x', colors='grey', labelsize=5)
-_plt_district.tick_params(axis='y', colors='grey', labelsize=5)
+_plt_district.tick_params(axis='x', colors='grey', labelsize=3,labeltop=True,labelrotation =270)
+_plt_district.tick_params(axis='y', colors='grey', labelsize=3,labelright=True,labelrotation =0)
 
-_plt_district.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) 
-_plt_district.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+plt.text(79.58805,11.08840,s ="Kadalangudy",fontsize=4,color = "grey")
+plt.text(79.61593,11.20177,s ="Manalmedu",fontsize=4,color = "grey")
+plt.text(79.66633,11.10438,s ="Mayiladuthurai",fontsize=4,color = "grey")
+plt.text(79.80977,11.17567,s ="Thiruvengadu",fontsize=4,color = "grey")
+plt.text(79.72628,11.19915,s ="Vaitheeswarankoil",fontsize=4,color = "grey")
 
-_plt_district.spines['bottom'].set_color('lightgrey')
-_plt_district.spines['top'].set_color('lightgrey') 
-_plt_district.spines['right'].set_color('lightgrey')
-_plt_district.spines['left'].set_color('lightgrey')
+fontprops = fm.FontProperties(size=5.5)
+
+
+scalebar = AnchoredSizeBar(_plt_district.transData,
+                           0.1, '11 km', 'lower left', 
+                           pad=0.005,
+                           color='lightgrey',
+                           frameon=False,
+                           size_vertical=0.005,
+                           fontproperties=fontprops)
+
+_plt_district.add_artist(scalebar)
+
+x, y, arrow_length = 0.5, 0.99, 0.1
+_plt_district.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length),
+            arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12),
+            ha='center', va='center', fontsize=10,
+            xycoords=_plt_district.transAxes)
+
+_plt_district.spines['bottom'].set_color('none')
+_plt_district.spines['top'].set_color('none') 
+_plt_district.spines['right'].set_color('none')
+_plt_district.spines['left'].set_color('none')
 
 plt.savefig(get_in_workdir("roadway.jpg"),dpi =1500)
 plt.show()
@@ -284,30 +310,68 @@ _shp_water.plot()
 # Details of the library can be found here : https://geopandas.org/en/stable/docs/user_guide/mapping.html
 
 # %%
-_plt_district = _shp_district.plot(figsize=(5,5),color="none",zorder=1)
+_shp_dst_water["color"] = "Waterbodies"
 
-_shp_dst_water.plot(color="skyblue",ax =_plt_district)
+# %%
+_shp_dst_water["GEOMORPHOL"].unique()
 
-_plt_district.xaxis.tick_top()
+# %%
+plt.rcParams['font.family'] = 'Helvetica'
+
+_plt_district = _shp_district.plot(figsize =(5,5),color="none",linewidth = 0.5)
+
+_shp_dst_water.plot(column='color', categorical=True, legend=True,legend_kwds={'loc': 'lower right','title':'Legend',"fontsize": 5.5,'markerscale':0.5,'title_fontsize':5.5,"framealpha":0,"borderpad":0.3,"handletextpad":0.5,"handlelength":1.0},ax =_plt_district)
+_shp_dst_substations.plot(color="black",ax=_plt_district,markersize= 3)  
+
 
 plt.xlim(79.40,80.00)
 plt.ylim(10.93,11.45)
 
-plt.grid(color="grey",linestyle = '--', linewidth = 0.50)
+plt.grid(color="grey",linestyle = '--', linewidth = 0.10)
 
 _plt_district.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 _plt_district.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 
-_plt_district.tick_params(axis='x', colors='grey', labelsize=5)
-_plt_district.tick_params(axis='y', colors='grey', labelsize=5)
+_plt_district.tick_params(axis='x', colors='grey', labelsize=3,labeltop=True,labelrotation =270)
+_plt_district.tick_params(axis='y', colors='grey', labelsize=3,labelright=True,labelrotation =0)
 
-_plt_district.spines['bottom'].set_color('lightgrey')
-_plt_district.spines['top'].set_color('lightgrey') 
-_plt_district.spines['right'].set_color('lightgrey')
-_plt_district.spines['left'].set_color('lightgrey')
+plt.text(79.58805,11.08840,s ="Kadalangudy",fontsize=4,color = "grey")
+plt.text(79.61593,11.20177,s ="Manalmedu",fontsize=4,color = "grey")
+plt.text(79.66633,11.10438,s ="Mayiladuthurai",fontsize=4,color = "grey")
+plt.text(79.80977,11.17567,s ="Thiruvengadu",fontsize=4,color = "grey")
+plt.text(79.72628,11.19915,s ="Vaitheeswarankoil",fontsize=4,color = "grey")
 
+fontprops = fm.FontProperties(size=5.5)
+
+
+scalebar = AnchoredSizeBar(_plt_district.transData,
+                           0.1, '10 km', 'lower left', 
+                           pad=0.005,
+                           color='lightgrey',
+                           frameon=False,
+                           size_vertical=0.005,
+                           fontproperties=fontprops)
+
+_plt_district.add_artist(scalebar)
+
+x, y, arrow_length = 0.5, 0.99, 0.1
+_plt_district.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length),
+            arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12),
+            ha='center', va='center', fontsize=10,
+            xycoords=_plt_district.transAxes)
+
+_plt_district.spines['bottom'].set_color('none')
+_plt_district.spines['top'].set_color('none') 
+_plt_district.spines['right'].set_color('none')
+_plt_district.spines['left'].set_color('none')
+# plt.legend()
+# plt.rcParams['font.family'] = 'Helvetica'
+# plt.rcParams.update({'font.family':'sans-serif'})
+# plt.rcParams.update({'font.sans-serif':'Helvetica'})
+# plt.rcdefaults()
 plt.savefig(get_in_workdir("water.jpg"),dpi =1500)
 plt.show()
+print(plt.rcParams['font.family'])
 
 
 # %%
@@ -406,7 +470,6 @@ merge_lc3 = overlay(lc_low,_shp_district,how ="intersection")
 # %%
 merge_lc3.head()
 
-
 # %%
 ax = _shp_district.plot(figsize=(5,5),color="none",zorder=3)
 merge_lc3.plot(color="blue",ax =ax)
@@ -449,14 +512,55 @@ lc_theo.plot()
 lc_barren.plot()
 
 # %%
-ax = _shp_district.plot(figsize=(5,5),color="none",zorder=3)
-x = lc_barren.plot(color="brown",ax =ax)
-y = lc_theo.plot(color="green",ax =ax)
-z = lc_tech.plot(color="blue",ax =ax)
-# ax.xaxis.tick_top()
+_plt_district = _shp_district.plot(figsize=(5,5),color="none",zorder=3)
+x = lc_barren.plot(color="brown",ax =_plt_district)
+y = lc_theo.plot(color="green",ax =_plt_district)
+z = lc_tech.plot(color="blue",ax =_plt_district)
+_plt_district.xaxis.tick_top()
+_plt_district.xaxis.tick_top()
+
 plt.xlim(79.40,80.00)
 plt.ylim(10.93,11.45)
-plt.axis('off')
+
+plt.grid(color="grey",linestyle = '--', linewidth = 0.50)
+
+_plt_district.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+_plt_district.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+
+_plt_district.tick_params(axis='x', colors='grey', labelsize=5)
+_plt_district.tick_params(axis='y', colors='grey', labelsize=5)
+
+plt.text(79.58805,11.08840,s ="Kadalangudy",fontsize="xx-small")
+plt.text(79.61593,11.20177,s ="Manalmedu",fontsize="xx-small")
+plt.text(79.66633,11.10438,s ="Mayiladuthurai",fontsize="xx-small")
+plt.text(79.80977,11.17567,s ="Thiruvengadu",fontsize="xx-small")
+plt.text(79.72628,11.19915,s ="Vaitheeswarankoil",fontsize="xx-small")
+
+fontprops = fm.FontProperties(size=10)
+
+
+scalebar = AnchoredSizeBar(_plt_district.transData,
+                           0.1, '11 km', 'lower left', 
+                           pad=0.005,
+                           color='Black',
+                           frameon=False,
+                           size_vertical=0.005,
+                           fontproperties=fontprops)
+
+_plt_district.add_artist(scalebar)
+
+x, y, arrow_length = 0.9, 0.99, 0.1
+_plt_district.annotate('N', xy=(x, y), xytext=(x, y-arrow_length),
+            arrowprops=dict(facecolor='none', width=8, headwidth=17),
+            ha='center', va='center', fontsize=10,
+            xycoords=_plt_district.transAxes)
+
+_plt_district.spines['bottom'].set_color('none')
+_plt_district.spines['top'].set_color('none') 
+_plt_district.spines['right'].set_color('none')
+_plt_district.spines['left'].set_color('none')
+
+# plt.axis('off')
 plt.savefig(get_in_workdir("barren_tech_theo.jpg"),dpi =1500)
 plt.show()
 
@@ -605,7 +709,7 @@ _shp_merge_water_forest.shape
 ax =_shp_district.plot(_shp_district,figsize=(5,5),color="none")
 tech_high_med_dist.plot(color="brown",ax =ax,alpha = 0.5)
 water_high_med_dist.plot(color ="blue",ax =ax,alpha = 0.5)
-forest_med.plot(color ="green",ax =ax,alpha = 0.5)
+forest_med.plot(color ="green",ax =ax)
 _shp_merge_tech_water.plot(color ="black",ax =ax)
 _shp_merge_tech_forest.plot(color ="red",ax = ax)
 # _shp_merge_water_forest.plot(color ="yellow", ax = ax)
