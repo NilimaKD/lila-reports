@@ -453,7 +453,7 @@ _shp_cities.head()
 # ## GHI
 
 # %%
-GHI_gdal_data = read_rastergdal_UT('workdir/GHIepsg_Nagapattinam.tif')
+GHI_gdal_data = read_rastergdal_UT('extrainputs/GHIepsg_Nagapattinam.tif')
 gdal_band = GHI_gdal_data.GetRasterBand(1)
 nodataval = 1.1754943508222875e-38
 
@@ -496,7 +496,7 @@ x = great_distance(start_latitude=11.1, start_longitude=79, end_latitude=11.1, e
 print(x)
 
 # %%
-GHI = read_raster_UT('workdir/GHIepsg_Nagapattinam.tif')
+GHI = read_raster_UT('extrainputs/GHIepsg_Nagapattinam.tif')
 
 _shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
