@@ -73,13 +73,6 @@ if _is_kaggle:
 #Masking Raster with shapefile
 
 # %%
-import rasterio
-import rasterio.plot
-from rasterio.plot import show
-import rasterio.mask
-
-import fiona
-
 import geopandas as gpd
 from osgeo import ogr, gdal
 from osgeo import gdal_array
@@ -94,6 +87,12 @@ import matplotlib.font_manager as fm
 from pygc import great_distance
 import matplotlib.patches as mpatches
 
+import rasterio
+import rasterio.plot
+from rasterio.plot import show
+import rasterio.mask
+
+import fiona
 
 
 # %%
