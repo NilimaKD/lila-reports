@@ -73,12 +73,20 @@ if _is_kaggle:
 #Masking Raster with shapefile
 
 # %%
+import rasterio
+import rasterio.plot
+from rasterio.plot import show
+import rasterio.mask
+
+import fiona
+
 import geopandas as gpd
 from osgeo import ogr, gdal
 from osgeo import gdal_array
 from osgeo import gdalconst
 import geopandas as gpd
 from geopandas import overlay
+import pandas as pd
 from matplotlib import pyplot
 import matplotlib.pyplot as plt
 
@@ -87,12 +95,6 @@ import matplotlib.font_manager as fm
 from pygc import great_distance
 import matplotlib.patches as mpatches
 
-import rasterio
-import rasterio.plot
-from rasterio.plot import show
-import rasterio.mask
-
-import fiona
 
 
 # %%
@@ -198,7 +200,7 @@ with rasterio.open(get_in_workdir('slope_dst.tif'), 'w', **out_meta) as dst:
 rasterio.plot.show(read_raster_UT('workdir/slope_dst.tif'))
 
 # %% [markdown]
-# Converting raster into epsg 4326 CRS
+# ##### Converting raster into epsg 4326 CRS
 
 # %%
 #Open raster
@@ -384,7 +386,7 @@ def plot_cities(fig, ax):
     for i in range(0,len(shp_cities)):
         plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
 
-    shp_cities.plot(ax=ax4, markersize=3, color='grey')
+    shp_cities.plot(ax=ax, markersize=3, color='grey')
 
 def plot_common_features(fig, ax):
     plt.rcParams['font.family'] = 'Helvetica'
@@ -409,59 +411,17 @@ def plot_common_features(fig, ax):
     ax.spines['left'].set_color('none')
 
     x, y, arrow_length = 0.5, 0.99, 0.1
-    ax.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax4.transAxes)
+    ax.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax.transAxes)
 
 
 # %%
 slope = read_raster_UT('workdir/slope_dstepsg.tif')
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
+
 
 fig1, ax1 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-font = fm.FontProperties('Helvetica')
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
-    
-_shp_cities.plot(ax=ax1, markersize=3, color='grey')
-
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax1.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax1.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax1.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax1.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax1.set_xlim(79.40, 80)
-ax1.set_ylim(10.93, 11.45)
-
-ax1.spines['bottom'].set_color('none')
-ax1.spines['top'].set_color('none') 
-ax1.spines['right'].set_color('none')
-ax1.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax1.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax1.transAxes)
-
+plot_common_features(fig1, ax1)
+plot_cities(fig1, ax1)
 
 # use imshow so that we have something to map the colorbar to
 image_hidden = ax.imshow(data_array, 
@@ -488,9 +448,6 @@ image = rasterio.plot.show(slope,
 plt.savefig(get_in_workdir("Slope.jpg"),dpi =1500)
 
 print(plt.rcParams['font.family'])
-
-# %%
-_shp_cities.head()
 
 # %% [markdown]
 # ## GHI
@@ -519,7 +476,6 @@ b = np.nanmin(GHI_data_array)
 a, b
 
 # %%
-import pandas as pd
 df = pd.DataFrame(GHI_data_array)
 df.head()
 
@@ -541,55 +497,11 @@ print(x)
 # %%
 GHI = read_raster_UT('extrainputs/GHIepsg_Nagapattinam.tif')
 
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
 
 fig2, ax2 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
-    
-_shp_cities.plot(ax=ax2, markersize=3, color='grey')
-
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax2.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax2.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax2.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax2.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax2.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax2.set_xlim(79.40, 80)
-ax2.set_ylim(10.93, 11.45)
-
-ax2.spines['bottom'].set_color('none')
-ax2.spines['top'].set_color('none') 
-ax2.spines['right'].set_color('none')
-ax2.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax2.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax2.transAxes)
-
+plot_common_features(fig2, ax2)
+plot_cities(fig2, ax2)
 
 # use imshow so that we have something to map the colorbar to
 image_hidden = ax.imshow(GHI_data_array, cmap=AVC_color2, vmin = 1800, vmax = 2275)
@@ -643,55 +555,13 @@ _shp_dst_water["GEOMORPHOL"].unique()
 # %%
 plt.rcParams['font.family'] = 'Helvetica'
 
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
-
 fig3, ax3 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
+plot_common_features(fig3, ax3)
+plot_cities(fig3, ax3)
 
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
     
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax3.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax3.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax3.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax3.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax3.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax3.set_xlim(79.40, 80)
-ax3.set_ylim(10.93, 11.45)
-
-ax3.spines['bottom'].set_color('none')
-ax3.spines['top'].set_color('none') 
-ax3.spines['right'].set_color('none')
-ax3.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax3.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax3.transAxes)
-
 _shp_dst_waterbodies = _shp_dst_water.plot(figsize =(5,5), color='#00B9F2', categorical=True, ax=ax3)
-_shp_cities.plot(ax=ax3, markersize=3, color='grey')
 _plt_district = _shp_district.plot(ax=ax3, figsize =(5,5),color="none",linewidth = 0.5)
 
 blue_patch = mpatches.Patch(color='#00B9F2', label='Waterbodies')
@@ -720,74 +590,17 @@ shp_land_cover_Water = shp_land_cover[shp_land_cover["DN"] == 5 ]
 shp_land_cover_Water1 = shp_land_cover[shp_land_cover["DN"] == 50 ]
 
 # %%
-plt.rcParams['font.family'] = 'Helvetica'
+fig33, ax33 = plt.subplots(figsize=(5, 5))
 
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
+plot_common_features(fig33, ax33)
+plot_cities(fig33, ax33)
 
-fig55, ax55 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
-
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
-    
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax55.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax55.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax55.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax55.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax55.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax55.set_xlim(79.40, 80)
-ax55.set_ylim(10.93, 11.45)
-
-ax55.spines['bottom'].set_color('none')
-ax55.spines['top'].set_color('none') 
-ax55.spines['right'].set_color('none')
-ax55.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax55.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax55.transAxes)
+_plt_district = _shp_district.plot(ax=ax33, figsize =(5,5),color="none",linewidth = 0.5)
 
 
-_plt_district = _shp_district.plot(ax=ax55, figsize =(5,5),color="none",linewidth = 0.5)
+shp_land_cover_Water.plot(color="#00B9F2",ax =ax33, label = 'Water')
+shp_land_cover_Water1.plot(color="#00B9F2",ax =ax33)
 
-_shp_cities.plot(ax=ax55, markersize=3, color='grey', zorder = 1)
-#shp_land_cover_Barren.plot(color="#424242",ax =ax7, label ='Unused')
-#shp_land_cover_sparseveg.plot(color="#f096ff",ax =ax7, label = 'Sparse vegetation')
-#shp_land_cover_cropland.plot(color="#18a558",ax =ax7, label = 'Cropland', zorder = 0)
-#shp_land_cover_Forest.plot(color="#B1D355",ax =ax7, label = 'Tree cover')
-#shp_land_cover_builtup.plot(color="#e73429",ax =ax7, label = 'Built-up')
-shp_land_cover_Water.plot(color="#00B9F2",ax =ax55, label = 'Water')
-shp_land_cover_Water1.plot(color="#00B9F2",ax =ax55)
-
-#ax7.legend(loc='upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
-
-#Unused = mpatches.Patch(color="#424242", label ='Unused')
-#SpV = mpatches.Patch(color="#f096ff", label = 'Sparse vegetation')
-#Crop = mpatches.Patch(color="#18a558", label = 'Cropland')
-#TC = mpatches.Patch(color="#B1D355", label = 'Tree cover')
-#BU = mpatches.Patch(color="#e73429", label = 'Built-up')
 Water = mpatches.Patch(color="#00B9F2", label = 'Water')
 
     
@@ -796,6 +609,13 @@ plt.legend(handles = [Water], loc = 'upper left', bbox_to_anchor=(0.8, 0.2), tit
 
 plt.savefig(get_in_workdir("Waterbodies.jpg"),dpi =1500)
 plt.show()
+
+# %%
+all_waterbodies = pd.concat([shp_land_cover_Water, shp_land_cover_Water1], axis=0)
+
+# %%
+#all_waterbodies.plot()
+#all_waterbodies.to_file('F:/AV Consulting/2022/LiLa/TN Government/Data/LiLa_Nagapattinam/workdir/All_waterbodies.shp')
 
 # %% [markdown]
 # ## Accessibility
@@ -850,13 +670,12 @@ _shp_dst_railways.plot()
 fig4, ax4 = plt.subplots(figsize=(5, 5))
 
 plot_common_features(fig4, ax4)
+plot_cities(fig4, ax4)
 
 _plt_district = _shp_district.plot(ax=ax4, figsize =(5,5),color="none",linewidth = 0.5)
 _shp_dst_roads_secondary.plot(color="#f0b8b3",label ="Secondary roads",ax=ax4, linewidth=0.5)
 _shp_dst_roads_primary.plot(color="#df2a29",label ="Primary roads",ax=ax4, linewidth=0.5)
 _shp_dst_railways.plot(color="#da0404",label ="Railway roads",ax=ax4, linestyle='--', linewidth=0.5)
-
-plot_cities(fig4, ax4)
 
 ax4.legend(loc='upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
 
@@ -880,8 +699,6 @@ _shp_powerlines.plot()
 _shp_dst_powerlines = overlay(_shp_powerlines, _shp_district, how='intersection')
 #_shp_dst_powerlines.info()
 
-# %%
-
 # %% [markdown]
 # ### Substations
 
@@ -891,8 +708,6 @@ _shp_dst_substations = overlay(_shp_substations, _shp_district, how='intersectio
 _shp_dst_substations["geometry"]
 _shp_dst_substations.head()
 
-# %%
-
 # %% [markdown]
 # ### Evacuation
 #
@@ -901,13 +716,9 @@ _shp_dst_substations.head()
 
 # %%
 fig5, ax5 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
-fontprops = fm.FontProperties(size=5.5)
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
+plot_common_features(fig5, ax5)
+plot_cities(fig5, ax5)
 
 #Voltage annotation
 _shp_dst_powerlines['coords'] = _shp_dst_powerlines['geometry'].apply(lambda x: x.representative_point().coords[:])
@@ -940,51 +751,11 @@ for i in range(0,len(_shp_dst_substations)):
     plt.text(x[i]+0.002,y[i],labels[i],fontsize=1.5,color = 'red', ha = 'left')
     
 
-#Major towns and cities
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
-
-
-
-#Graph features
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax5.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax5.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax5.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax5.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax5.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax5.set_xlim(79.40, 80)
-ax5.set_ylim(10.93, 11.45)
-
-ax5.spines['bottom'].set_color('none')
-ax5.spines['top'].set_color('none') 
-ax5.spines['right'].set_color('none')
-ax5.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax5.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax5.transAxes)
-
 #plots
 _plt_district = _shp_district.plot(ax=ax5, figsize =(5,5),color="none",linewidth = 0.5)
 _shp_dst_substations.plot(color='red', marker='x', markersize=2.5, ax=ax5, linewidth=0.05, label='Substations')
 _shp_dst_powerlines.plot(color="#dd2c0e",ax =ax5, linewidth=0.3, linestyle='--', label='Transmission') 
-_shp_cities.plot(ax=ax5, markersize=3, color='grey')
+
 
 ax5.legend(loc='upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
 
@@ -1011,77 +782,15 @@ shp_land_cover_Water = shp_land_cover[shp_land_cover["DN"] == 5 ]
 shp_land_cover_Water1 = shp_land_cover[shp_land_cover["DN"] == 50 ]
 
 # %%
-plt.rcParams['font.family'] = 'Helvetica'
-
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
-
 fig6, ax6 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
-    
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax6.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax6.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax6.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax6.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax6.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax6.set_xlim(79.40, 80)
-ax6.set_ylim(10.93, 11.45)
-
-ax6.spines['bottom'].set_color('none')
-ax6.spines['top'].set_color('none') 
-ax6.spines['right'].set_color('none')
-ax6.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax6.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax6.transAxes)
-
+plot_common_features(fig6, ax6)
+plot_cities(fig6, ax6)    
 
 _plt_district = _shp_district.plot(ax=ax6, figsize =(5,5),color="none",linewidth = 0.5)
-
-_shp_cities.plot(ax=ax6, markersize=3, color='grey', zorder = 0)
-#shp_land_cover_Barren.plot(color="#424242",ax =ax7, label ='Unused')
-#shp_land_cover_sparseveg.plot(color="#f096ff",ax =ax7, label = 'Sparse vegetation')
-#shp_land_cover_cropland.plot(color="#18a558",ax =ax7, label = 'Cropland', zorder = 0)
-#shp_land_cover_Forest.plot(color="#B1D355",ax =ax7, label = 'Tree cover')
 shp_land_cover_builtup.plot(color="#e73429",ax =ax6, label = 'Built-up', zorder=1)
-#shp_land_cover_Water.plot(color="#00B9F2",ax =ax7, label = 'Water')
-#shp_land_cover_Water1.plot(color="#00B9F2",ax =ax7)
 
-#ax7.legend(loc='upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
-
-#Unused = mpatches.Patch(color="#424242", label ='Unused')
-#SpV = mpatches.Patch(color="#f096ff", label = 'Sparse vegetation')
-#Crop = mpatches.Patch(color="#18a558", label = 'Cropland')
-#TC = mpatches.Patch(color="#B1D355", label = 'Tree cover')
 BU = mpatches.Patch(color="#e73429", label = 'Built-up')
-#Water = mpatches.Patch(color="#00B9F2", label = 'Water')
-
-    
 plt.legend(handles = [BU], loc = 'upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
 
 
@@ -1105,61 +814,15 @@ shp_land_cover_Water = shp_land_cover[shp_land_cover["DN"] == 5 ]
 shp_land_cover_Water1 = shp_land_cover[shp_land_cover["DN"] == 50 ]
 
 # %%
-plt.rcParams['font.family'] = 'Helvetica'
-
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
-
 fig7, ax7 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    plt.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center')
-    
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax7.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax7.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax7.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax7.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax7.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax7.set_xlim(79.40, 80)
-ax7.set_ylim(10.93, 11.45)
-
-ax7.spines['bottom'].set_color('none')
-ax7.spines['top'].set_color('none') 
-ax7.spines['right'].set_color('none')
-ax7.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax7.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax7.transAxes)
+plot_common_features(fig7, ax7)
+plot_cities(fig7, ax7)
 
 
 _plt_district = _shp_district.plot(ax=ax7, figsize =(5,5),color="none",linewidth = 0.5)
-#_shp_dst_roads_secondary.plot(color="#f0b8b3",label ="Secondary roads",ax=ax4, linewidth=0.5)
-#_shp_dst_roads_primary.plot(color="#df2a29",label ="Primary roads",ax=ax4, linewidth=0.5)
-#_shp_dst_railways.plot(color="#da0404",label ="Railway roads",ax=ax4, linestyle='--', linewidth=0.5)
-_shp_cities.plot(ax=ax7, markersize=3, color='grey', zorder = 1)
+
+
 shp_land_cover_Barren.plot(color="#424242",ax =ax7, label ='Unused')
 shp_land_cover_sparseveg.plot(color="#f096ff",ax =ax7, label = 'Sparse vegetation')
 shp_land_cover_cropland.plot(color="#18a558",ax =ax7, label = 'Cropland', zorder = 0)
@@ -1167,8 +830,6 @@ shp_land_cover_Forest.plot(color="#B1D355",ax =ax7, label = 'Tree cover')
 shp_land_cover_builtup.plot(color="#e73429",ax =ax7, label = 'Built-up')
 shp_land_cover_Water.plot(color="#00B9F2",ax =ax7, label = 'Water')
 shp_land_cover_Water1.plot(color="#00B9F2",ax =ax7)
-
-#ax7.legend(loc='upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
 
 Unused = mpatches.Patch(color="#424242", label ='Unused')
 SpV = mpatches.Patch(color="#f096ff", label = 'Sparse vegetation')
@@ -1183,8 +844,6 @@ plt.legend(handles = [Unused, SpV, Crop, TC, BU, Water], loc = 'upper left', bbo
 
 plt.savefig(get_in_workdir("Landcover.jpg"),dpi =1500)
 plt.show()
-
-# %%
 
 # %% [markdown]
 # # Land suitability for solar
@@ -1207,58 +866,13 @@ lc_barren = read_df_UT('solar/all_lands_barren/all_BarrenLands_Mayu.shp')
 #lc_barren.plot()
 
 # %%
-plt.rcParams['font.family'] = 'Helvetica'
-
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
-
 fig8, ax8 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    ax8.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center', zorder=0)
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax8.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax8.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax8.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax8.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax8.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax8.set_xlim(79.40, 80)
-ax8.set_ylim(10.93, 11.45)
-
-ax8.spines['bottom'].set_color('none')
-ax8.spines['top'].set_color('none') 
-ax8.spines['right'].set_color('none')
-ax8.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax8.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax8.transAxes)
+plot_common_features(fig8, ax8)
+plot_cities(fig8, ax8)
 
 
 _shp_district.plot(figsize=(5,5),color="none", ax=ax8, linewidth = 0.5, zorder=5)
-_shp_cities.plot(ax=ax8, markersize=3, color='grey', zorder=-1)
-    
 
 lc_barren.plot(color="#424242",ax =ax8, label='Low Potential')
 lc_theo.plot(color="#997D41",ax =ax8, label='Medium Potential')
@@ -1270,9 +884,6 @@ Theo_P = mpatches.Patch(color='#997D41', label='Theoretical potential')
 Tech_P = mpatches.Patch(color='#FBAF30', label='Technical potential')
     
 plt.legend(handles = [No_P, Theo_P, Tech_P], loc = 'upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
-
-
-#ax10.legend(loc='upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
 
 
 print(plt.rcParams['font.family'])
@@ -1296,58 +907,13 @@ lc_tech_S2 = lc_tech[lc_tech["area_class"] == "B"]
 lc_tech_S1 = lc_tech[lc_tech["area_class"] == "C"]
 
 # %%
-plt.rcParams['font.family'] = 'Helvetica'
-
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
-
 fig9, ax9 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    ax9.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center', zorder=0)
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax9.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax9.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax9.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax9.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax9.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax9.set_xlim(79.40, 80)
-ax9.set_ylim(10.93, 11.45)
-
-ax9.spines['bottom'].set_color('none')
-ax9.spines['top'].set_color('none') 
-ax9.spines['right'].set_color('none')
-ax9.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax9.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax9.transAxes)
+plot_common_features(fig9, ax9)
+plot_cities(fig9, ax9)
 
 
 _shp_district.plot(figsize=(5,5),color="none", ax=ax9, linewidth = 0.5, zorder=5)
-_shp_cities.plot(ax=ax9, markersize=3, color='grey', zorder=-1)
-    
 
 lc_tech_S3.plot(color="#646464",ax =ax9, label='>5 to 20 acres')
 lc_tech_S2.plot(color="#BDA383",ax =ax9, label='>20 to 100 acres')
@@ -1360,17 +926,11 @@ S3 = mpatches.Patch(color='#FBAF30', label='>100 acres')
     
 plt.legend(handles = [S1, S2, S3], loc = 'upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
 
-
-#ax10.legend(loc='upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
-
-
 print(plt.rcParams['font.family'])
 
 
 plt.savefig(get_in_workdir("Distribution by size.jpg"),dpi =1500)
 plt.show()
-
-# %%
 
 # %% [markdown]
 # ### High Potential - High, medium, low potential lands
@@ -1382,69 +942,27 @@ lc_high = read_df_UT('solar/_rl_elev_rd_wat_co_trans_ar_sub_rdpx_trsub_trat_suba
 lc_med = read_df_UT("solar/_rl_elev_rd_wat_co_trans_ar_sub_rdpx_trsub_trat_subat_rdat_ir_medatt/LC_Solar_final_area_mask_1_Nagapattinam.shp")
 
 # %%
-lc_low = read_df_UT('solar/_rl_elev_rd_wat_trans_ar_sub_rdpx_trsub_low/LC_Solar_final_area_mask_1_Nagapattinam.shp')
+#lc_low = read_df_UT('solar/_rl_elev_rd_wat_trans_ar_sub_rdpx_trsub_low/LC_Solar_final_area_mask_1_Nagapattinam.shp')
 
 # %%
 merge_lc_high = overlay(lc_high,_shp_district,how ="intersection")
 merge_lc_med = overlay(lc_med,_shp_district,how ="intersection")
-merge_lc_low = overlay(lc_low,_shp_district,how ="intersection")
+
 
 # %%
-#merge_lc_low.head()
+merge_lc_low = overlay(lc_tech,lc_med,how ="difference")
+#merge_lc_low.plot(), lc_tech.plot(), lc_med.plot()
 
 # %%
-plt.rcParams['font.family'] = 'Helvetica'
+merge_lc_low.head()
 
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
-
+# %%
 fig10, ax10 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    ax10.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center', zorder=0)
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax10.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax10.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax10.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax10.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax10.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax10.set_xlim(79.40, 80)
-ax10.set_ylim(10.93, 11.45)
-
-ax10.spines['bottom'].set_color('none')
-ax10.spines['top'].set_color('none') 
-ax10.spines['right'].set_color('none')
-ax10.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax10.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax10.transAxes)
-
+plot_common_features(fig10, ax10)
+plot_cities(fig10, ax10)
 
 _shp_district.plot(figsize=(5,5),color="none", ax=ax10, linewidth = 0.5, zorder=5)
-_shp_cities.plot(ax=ax10, markersize=3, color='grey', zorder=-1)
-    
 
 merge_lc_low.plot(color="#5A3228",ax =ax10, label='Low Potential')
 merge_lc_med.plot(color="#A77145",ax =ax10, label='Medium Potential')
@@ -1456,10 +974,6 @@ Med_P = mpatches.Patch(color='#A77145', label='Medium potential')
 High_P = mpatches.Patch(color='#FBAF31', label='High potential')
     
 plt.legend(handles = [Low_P, Med_P, High_P], loc = 'upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
-
-
-#ax10.legend(loc='upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
-
 
 print(plt.rcParams['font.family'])
 
@@ -1539,58 +1053,12 @@ _shp_merge_tech_water_forest = overlay(_shp_merge_tech_water,_shp_merge_tech_for
 # Competing land use plot
 
 # %%
-plt.rcParams['font.family'] = 'Helvetica'
-
-_shp_cities = read_gpd_UT("extrainputs/Mayiladuthurai_major_towns.shp")
-
 fig11, ax11 = plt.subplots(figsize=(5, 5))
-plt.grid(color="grey",linestyle = '--', linewidth = 0.5)
 
-plt.rcParams['font.family'] = 'Helvetica'
-font = fm.FontProperties('Helvetica')
-
-plt.grid(color="grey",linestyle = '--', linewidth = 0.1)
-
-_shp_cities['coords'] = _shp_cities['geometry'].apply(lambda x: x.representative_point().coords[:])
-_shp_cities['coords'] = [coords[0] for coords in _shp_cities['coords']]
-
-_shp_cities["coords"].tolist()
-_shp_cities[['lat', 'lon', 'zero']] = gpd.GeoDataFrame(_shp_cities['coords'].tolist(), index=_shp_cities.index)
-
-x = _shp_cities["lat"]
-y = _shp_cities["lon"]    
-labels =_shp_cities["name"]
-
-for i in range(0,len(_shp_cities)):
-    ax11.text(x[i]+0.008,y[i]+0.008,labels[i],fontsize=4,color = '#c3c3c3', ha = 'center', zorder=0)
-
-dx = great_distance(start_latitude=11.1, start_longitude=-79.5, end_latitude=11.1, end_longitude=-79.6)
-scalebar = ScaleBar(dx = 109250.50301657, location ="lower left", frameon=False, color='lightgrey', sep=1.5, width_fraction=0.012)
-ax11.add_artist(scalebar)
-scalebar.font_properties.set_size(5.5)
-scalebar.font_properties.set_family('Helvetica')
-
-ax11.tick_params(axis='x', colors='grey', labelsize=3, labeltop = 'True', labelrotation = 270)
-ax11.tick_params(axis='y', colors='grey', labelsize=3, labelright = 'True') #reducing the size of the axis values
-
-ax11.xaxis.set_major_formatter(FormatStrFormatter('%.2f')) #axis value formatting for both axis
-ax11.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-
-ax11.set_xlim(79.40, 80)
-ax11.set_ylim(10.93, 11.45)
-
-ax11.spines['bottom'].set_color('none')
-ax11.spines['top'].set_color('none') 
-ax11.spines['right'].set_color('none')
-ax11.spines['left'].set_color('none')
-
-x, y, arrow_length = 0.5, 0.99, 0.1
-ax11.annotate('N',color= "lightgrey", xy=(x, y), xytext=(x, y-arrow_length), arrowprops=dict(facecolor='none',edgecolor="lightgrey", width=4, headwidth=12), ha='center', va='center', fontsize=10, xycoords=ax11.transAxes)
-
+plot_common_features(fig11, ax11)
+plot_cities(fig11, ax11)
 
 _shp_district.plot(figsize=(5,5),color="none", ax=ax11, linewidth = 0.5, zorder=5)
-_shp_cities.plot(ax=ax11, markersize=3, color='grey', zorder=-1)
-    
 
 tech_ABC.plot(color="#FBB034",ax =ax11)
 _shp_merge_tech_water.plot(color="#00B9F2",ax =ax11)
@@ -1605,12 +1073,7 @@ FnW = mpatches.Patch(color='#e73429', label='Solar, forest & water')
     
 plt.legend(handles = [S, F, W, FnW], loc = 'upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
 
-
-#ax10.legend(loc='upper left', bbox_to_anchor=(0.8, 0.2), title = 'Legend\n', fontsize = 5.5, markerscale = 2, title_fontsize = 5.5, framealpha= 0, borderpad = 0.3, handletextpad = 0.5, handlelength = 1.0)
-
-
 print(plt.rcParams['font.family'])
-
 
 plt.savefig(get_in_workdir("Competing Land Use.jpg"),dpi =1500)
 plt.show()
@@ -1722,9 +1185,55 @@ image.read()
 
 # %%
 
-# %%
+# %% [markdown]
+# Converting CRS of Landcover
 
 # %%
+#Open raster
+_tif_dst_lc = rasterio.open(get_rooted('LC_Mayiladhuthurai_epsg32644.tif'))
+
+#Show the CRS of source raster
+_tif_dst_lc.crs
+
+#Defining CRS of reprojected raster. Reprojected raster is named _tif_dst_slope_epsg4326
+_tif_dst_lc_epsg4326 = {'init': 'EPSG:4326'}
+
+#Calculate transform array and shape of reprojected raster
+from rasterio.warp import calculate_default_transform, reproject, Resampling
+transform, width, height = calculate_default_transform(
+    _tif_dst_lc.crs, _tif_dst_lc_epsg4326, _tif_dst_lc.width, _tif_dst_lc.height, *_tif_dst_lc.bounds)
+
+_tif_dst_lc.transform
+transform
+
+#Working of the meta for the destination raster
+kwargs = _tif_dst_lc.meta.copy()
+kwargs.update({
+        'crs': _tif_dst_lc_epsg4326,
+        'transform': transform,
+        'width': width,
+        'height': height,
+    })
+
+# %%
+#Open destination raster
+_tif_dst_lc_epsg4326 = rasterio.open(get_in_workdir('lc_dstepsg.tif'), 'w', **kwargs)
+
+#Reproject and save raster band date
+for i in range(1, _tif_dst_lc.count + 1):
+    reproject(
+        source = rasterio.band(_tif_dst_lc, i),
+        destination = rasterio.band(_tif_dst_lc_epsg4326, i),
+        src_crs = _tif_dst_lc.crs,
+        dst_crs = _tif_dst_lc_epsg4326,
+        resampling = Resampling.nearest
+    )
+
+_tif_dst_lc_epsg4326.close()
+
+# %%
+_lc_epsg4326 = read_raster_UT('workdir/lc_dstepsg.tif')
+show(_tif_dst_slope_epsg4326)
 
 # %%
 
