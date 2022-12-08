@@ -86,8 +86,37 @@ def intersection(df,df1,dist):
     df2 = gpd.overlay(df,df1,how ="intersection")
     return df2   
 
+
 # %%
 # lc_tech = read_df_UT('forest\\_ter_ar_tech\\LC_Forest_final_area_mask_1_Nagapattinam.shp')
 # _shp_district = read_df_UT("Practice\\Nagapattinam_proj32644.shp")
 # shp_water_high =read_df_UT("water\\_wd_run_high\\LC_Water_final.shp")
 # shp_water_med =read_df_UT("water\\_wd_run_med\\LC_Water_final.shp")
+
+# %% [markdown]
+# ### def fun for Calculating overlap area
+
+# %%
+def find_overlap_area(df,tag,fdf2):
+    crs_utm = 32644    
+    df = df.to_crs(crs_utm)
+    df1 = pd.DataFrame(columns = ['olap%'+tag,'olaparea'+tag])
+    df1['olap%'+tag]=df1['olap%'+tag].astype('object')
+    df1['olaparea'+tag]=df1['olaparea'+tag].astype('object')
+    
+    fdf2=fdf2.to_crs(crs_utm)
+    #set spatial index for data for faster processing
+    sindex = fdf2.sindex
+    for i in range(len(df)):
+        geometry = df.iloc[i]['geometry']
+        fids = list(sindex.intersection(geometry.bounds))
+        if fids:
+            olaparea = ((fdf2.iloc[fids]['geometry'].intersection(geometry)).area).sum()
+            olap_perc = olaparea*100/geometry.area
+            olaparea = (olaparea/10**6)*247.1               
+        else:
+            olaparea = 0
+            olap_perc = 0
+        df1.at[i,'olap%'+tag] =  olap_perc      
+        df1.at[i,'olaparea'+tag] = olaparea
+    return pd.concat([df,df1], axis= 1)
